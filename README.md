@@ -1,1 +1,1 @@
-![rect_chart](relative/path/in/repository/to/image.svg)
+![rect_chart](https://github.com/MarcinWgn/TestComposeCanvasChart/blob/main/rect_chart.png)
