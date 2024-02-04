@@ -58,6 +58,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val min = 5
+        val max = 10
+        val delta = max - min
+        val size = 50
+
+        val list = List(size = size) { min + Random.nextFloat() * delta }
+
         handleIntent(intent)
         addDynamicShortcut()
         setContent {
@@ -72,8 +79,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(8.dp)
                     ) {
-                        LineChart()
-                        RectChart()
+                        RectChart(items = list)
                     }
 
                 }
@@ -117,98 +123,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Composable
-fun LineChart() {
 
-    var running by remember {
-        mutableStateOf(false)
-    }
-    val scope = rememberCoroutineScope()
-    val points = remember {
-        mutableStateListOf<PointF>(PointF(0f, 0f))
-    }
-    val len = 100
-    val max = 500
-
-    fun add() {
-        if (points.size < len) {
-            val p2 = PointF(points.size.toFloat(), Random.nextInt(0, max).toFloat())
-            points.add(p2)
-            Log.d(TAG, "size: ${points.size}")
-        } else {
-            points.removeFirst()
-            points.forEach {
-                it.x -= 1
-            }
-            Log.d(TAG, "size: ${points.size}")
-        }
-
-    }
-
-    fun clear() {
-        points.clear()
-    }
-
-    fun doData() {
-        scope.launch {
-            while (running) {
-                add()
-                delay(200)
-            }
-        }.start()
-    }
-    Column {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .background(MaterialTheme.colorScheme.inversePrimary)
-        )
-        {
-
-            val offsetList = mutableListOf<Offset>()
-            points.forEachIndexed { i, point ->
-                offsetList.add(
-                    index = i,
-                    Offset(
-                        x = point.x / (len) * size.width,
-                        y = size.height - (point.y / max * size.height)
-                    )
-                )
-            }
-
-            drawPoints(
-                strokeWidth = 2.dp.toPx(),
-                color = Color.Red,
-                points = offsetList,
-                pointMode = PointMode.Polygon
-            )
-        }
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Button(modifier = Modifier.padding(8.dp),
-                onClick = {
-                    add()
-                }) {
-                Text(text = "add")
-            }
-            Button(modifier = Modifier.padding(8.dp), onClick = {
-                clear()
-            }) {
-                Text(text = "clear")
-
-            }
-            Button(modifier = Modifier.padding(8.dp), onClick = {
-                running = !running
-                doData()
-            }) {
-                if (running) {
-                    Text(text = "stop")
-                } else {
-                    Text(text = "start")
-                }
-            }
-        }
-    }
-}
 
 val TAG = "TESTTAG"
